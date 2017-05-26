@@ -68,6 +68,8 @@ class Shortcut
       } else {
         // Link is valid, update hits counter
         $link->setHits($link->getHits() + 1);
+        $link->setUpdated($now);
+        // Return good news
         $url = $link->getUrl();
         $result = true;
         $reason = self::REASON_OK;
