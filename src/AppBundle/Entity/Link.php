@@ -26,7 +26,7 @@ class Link
   private $shortcut;
 
   /**
-   * @ORM\Column(type="string")
+   * @ORM\Column(type="string",length=4096)
    */
   private $url;
 
