@@ -15,7 +15,7 @@ class DefaultController extends Controller
   /**
    * @Route("/{shortcut}", name="/{shortcut}",
    * requirements={"shortcut":
-   *   "[0-9a-zA-Z]{3,100}"})
+   *   "[0-9a-zA-Z\-\_]{3,100}"})
    * @param \Symfony\Component\HttpFoundation\Request $request
    * @param string $shortcut
    * @return \Symfony\Component\HttpFoundation\Response
