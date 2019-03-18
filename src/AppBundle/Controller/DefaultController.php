@@ -11,6 +11,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends Controller {
   /**
+   * @Route("/{shortcut}/", name="/{shortcut}/ (alias)",
+   * requirements={"shortcut":
+   *   "[0-9a-zA-Z]{0,100}"})
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param string $shortcut
+   * @return \Symfony\Component\HttpFoundation\Response
+   * @throws \Exception
+   */
+  public function shortcutAliasAction(Request $request, $shortcut) {
+    return $this->shortcutAction($request, $shortcut);
+  }
+
+  /**
    * @Route("/{shortcut}", name="/{shortcut}",
    * requirements={"shortcut":
    *   "[0-9a-zA-Z\-\_]{0,100}"})
@@ -29,10 +42,10 @@ class DefaultController extends Controller {
       $link = $doctrine->getRepository('AppBundle:Link')
         ->findOneByShortcut($shortcut);
       if (is_null($link)) {
-        $logger->info('Not found "{shortcut}" for client {client_ip}', [
-            'shortcut'  => $shortcut,
-            'client_ip' => $request->getClientIp(),
-          ]);
+        $logger->info('Not found shortcut "{shortcut}" for the client {client_ip}', [
+          'shortcut'  => $shortcut,
+          'client_ip' => $request->getClientIp(),
+        ]);
 
         return $this->render('default/error_404.html.twig', [],
           new Response('Shortcut is not found', 404));
@@ -48,7 +61,8 @@ class DefaultController extends Controller {
             'client_ip' => $request->getClientIp(),
           ]);
 
-        return $this->render('default/error_expired.html.twig');
+        return $this->render('default/error_410.html.twig', [],
+          new Response('Shortcut is not found', 410));
       }
 
       // Redirect

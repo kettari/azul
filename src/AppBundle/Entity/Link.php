@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AppBundle\Entity;
 
 use AppBundle\NowDateHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 
@@ -12,8 +13,7 @@ use Doctrine\ORM\Mapping\Index;
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\Table(name="link",indexes={@Index(name="creation_idx",columns={"date_created"})})
  */
-class Link
-{
+class Link {
   /**
    * @ORM\Column(type="integer")
    * @ORM\Id
@@ -29,7 +29,13 @@ class Link
 
   /**
    * @var string
-   * @ORM\Column(type="string",length=5,unique=true,options={"collation":"utf8_bin"})
+   * @ORM\Column(type="string",length=20)
+   */
+  private $type = '';
+
+  /**
+   * @var string
+   * @ORM\Column(type="string",length=100,unique=true,options={"collation":"utf8_bin"})
    */
   private $shortcut = '';
 
@@ -61,29 +67,34 @@ class Link
    * @var bool
    * @ORM\Column(type="boolean")
    */
-  private $deleted = false;
+  private $deleted = FALSE;
+
+  /**
+   * ~~INVERSE SIDE~~
+   *
+   * @ORM\OneToMany(targetEntity="AppBundle\Entity\LinkRequest", mappedBy="link")
+   */
+  private $linkRequests;
 
   /**
    * Link constructor.
    */
-  public function __construct()
-  {
+  public function __construct() {
     $this->dateCreated = NowDateHelper::getNow();
+    $this->linkRequests = new ArrayCollection();
   }
 
   /**
    * @return integer
    */
-  public function getId()
-  {
+  public function getId() {
     return $this->id;
   }
 
   /**
    * @return string
    */
-  public function getUrl(): string
-  {
+  public function getUrl(): string {
     return $this->url;
   }
 
@@ -91,8 +102,7 @@ class Link
    * @param string $url
    * @return Link
    */
-  public function setUrl(string $url): Link
-  {
+  public function setUrl(string $url): Link {
     $this->url = $url;
 
     return $this;
@@ -101,8 +111,24 @@ class Link
   /**
    * @return string
    */
-  public function getShortcut(): string
-  {
+  public function getType(): string {
+    return $this->type;
+  }
+
+  /**
+   * @param string $type
+   * @return Link
+   */
+  public function setType(string $type): Link {
+    $this->type = $type;
+
+    return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getShortcut(): string {
     return $this->shortcut;
   }
 
@@ -110,8 +136,7 @@ class Link
    * @param string $shortcut
    * @return Link
    */
-  public function setShortcut(string $shortcut): Link
-  {
+  public function setShortcut(string $shortcut): Link {
     $this->shortcut = $shortcut;
 
     return $this;
@@ -120,8 +145,7 @@ class Link
   /**
    * @return \DateTime
    */
-  public function getDateCreated(): \DateTime
-  {
+  public function getDateCreated(): \DateTime {
     return $this->dateCreated;
   }
 
@@ -129,8 +153,7 @@ class Link
    * @param \DateTime $dateCreated
    * @return Link
    */
-  public function setDateCreated(\DateTime $dateCreated): Link
-  {
+  public function setDateCreated(\DateTime $dateCreated): Link {
     $this->dateCreated = $dateCreated;
 
     return $this;
@@ -139,8 +162,7 @@ class Link
   /**
    * @return \DateTime
    */
-  public function getDateLastAccessed()
-  {
+  public function getDateLastAccessed() {
     return $this->dateLastAccessed;
   }
 
@@ -148,8 +170,7 @@ class Link
    * @param \DateTime $dateLastAccessed
    * @return Link
    */
-  public function setDateLastAccessed($dateLastAccessed): Link
-  {
+  public function setDateLastAccessed($dateLastAccessed): Link {
     $this->dateLastAccessed = $dateLastAccessed;
 
     return $this;
@@ -158,8 +179,7 @@ class Link
   /**
    * @return \DateTime
    */
-  public function getDateExpires()
-  {
+  public function getDateExpires() {
     return $this->dateExpires;
   }
 
@@ -167,8 +187,7 @@ class Link
    * @param \DateTime|null $dateExpires
    * @return Link
    */
-  public function setDateExpires($dateExpires = null): Link
-  {
+  public function setDateExpires($dateExpires = NULL): Link {
     $this->dateExpires = $dateExpires;
 
     return $this;
@@ -177,8 +196,7 @@ class Link
   /**
    * @return int
    */
-  public function getHits(): int
-  {
+  public function getHits(): int {
     return $this->hits;
   }
 
@@ -186,8 +204,7 @@ class Link
    * @param int $hits
    * @return Link
    */
-  public function setHits(int $hits): Link
-  {
+  public function setHits(int $hits): Link {
     $this->hits = $hits;
 
     return $this;
@@ -196,8 +213,7 @@ class Link
   /**
    * @return bool
    */
-  public function isDeleted(): bool
-  {
+  public function isDeleted(): bool {
     return $this->deleted;
   }
 
@@ -205,10 +221,39 @@ class Link
    * @param bool $deleted
    * @return Link
    */
-  public function setDeleted(bool $deleted): Link
-  {
+  public function setDeleted(bool $deleted): Link {
     $this->deleted = $deleted;
 
     return $this;
+  }
+
+  /**
+   * Add link request
+   *
+   * @param \AppBundle\Entity\LinkRequest $linkRequest
+   * @return Link
+   */
+  public function addLinkRequest(LinkRequest $linkRequest) {
+    $this->linkRequests[] = $linkRequest;
+
+    return $this;
+  }
+
+  /**
+   * Remove link request
+   *
+   * @param \AppBundle\Entity\LinkRequest $linkRequest
+   */
+  public function removeSubscription(LinkRequest $linkRequest) {
+    $this->linkRequests->removeElement($linkRequest);
+  }
+
+  /**
+   * Get link requests
+   *
+   * @return \Doctrine\Common\Collections\Collection
+   */
+  public function getLinkRequests() {
+    return $this->linkRequests;
   }
 }
