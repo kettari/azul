@@ -1,15 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace AppBundle\Entity;
 
+use AppBundle\NowDateHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="link",indexes={@Index(name="shortcut_idx",columns={"shortcut"})},
- *   options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"})
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
+ * @ORM\Table(name="link",indexes={@Index(name="creation_idx",columns={"date_created"})})
  */
 class Link
 {
@@ -21,48 +22,56 @@ class Link
   private $id;
 
   /**
-   * @ORM\Column(type="string",length=100,unique=true)
-   */
-  private $shortcut;
-
-  /**
+   * @var string
    * @ORM\Column(type="string",length=4096)
    */
-  private $url;
+  private $url = '';
 
   /**
-   * @ORM\Column(type="string",length=50)
+   * @var string
+   * @ORM\Column(type="string",length=5,unique=true,options={"collation":"utf8_bin"})
    */
-  private $status;
+  private $shortcut = '';
 
   /**
-   * @ORM\Column(type="string",length=50)
+   * @var \DateTime
+   * @ORM\Column(type="datetime")
    */
-  private $type;
+  private $dateCreated;
 
   /**
+   * @var \DateTime
    * @ORM\Column(type="datetime",nullable=true)
    */
-  private $expires;
+  private $dateLastAccessed;
 
   /**
-   * @ORM\Column(type="datetime")
+   * @var \DateTime
+   * @ORM\Column(type="datetime",nullable=true)
    */
-  private $created;
+  private $dateExpires;
 
   /**
-   * @ORM\Column(type="datetime")
-   */
-  private $updated;
-
-  /**
+   * @var int
    * @ORM\Column(type="integer")
    */
   private $hits = 0;
 
   /**
-   * Get id
-   *
+   * @var bool
+   * @ORM\Column(type="boolean")
+   */
+  private $deleted = false;
+
+  /**
+   * Link constructor.
+   */
+  public function __construct()
+  {
+    $this->dateCreated = NowDateHelper::getNow();
+  }
+
+  /**
    * @return integer
    */
   public function getId()
@@ -71,47 +80,18 @@ class Link
   }
 
   /**
-   * Get shortcut
-   *
    * @return string
    */
-  public function getShortcut()
-  {
-    return $this->shortcut;
-  }
-
-  /**
-   * Set shortcut
-   *
-   * @param string $shortcut
-   *
-   * @return Link
-   */
-  public function setShortcut($shortcut)
-  {
-    $this->shortcut = $shortcut;
-
-    return $this;
-  }
-
-  /**
-   * Get url
-   *
-   * @return string
-   */
-  public function getUrl()
+  public function getUrl(): string
   {
     return $this->url;
   }
 
   /**
-   * Set url
-   *
    * @param string $url
-   *
    * @return Link
    */
-  public function setUrl($url)
+  public function setUrl(string $url): Link
   {
     $this->url = $url;
 
@@ -119,145 +99,115 @@ class Link
   }
 
   /**
-   * Get status
-   *
    * @return string
    */
-  public function getStatus()
+  public function getShortcut(): string
   {
-    return $this->status;
+    return $this->shortcut;
   }
 
   /**
-   * Set status
-   *
-   * @param string $status
-   *
+   * @param string $shortcut
    * @return Link
    */
-  public function setStatus($status)
+  public function setShortcut(string $shortcut): Link
   {
-    $this->status = $status;
+    $this->shortcut = $shortcut;
 
     return $this;
   }
 
   /**
-   * Get type
-   *
-   * @return string
-   */
-  public function getType()
-  {
-    return $this->type;
-  }
-
-  /**
-   * Set type
-   *
-   * @param string $type
-   *
-   * @return Link
-   */
-  public function setType($type)
-  {
-    $this->type = $type;
-
-    return $this;
-  }
-
-  /**
-   * Get expires
-   *
    * @return \DateTime
    */
-  public function getExpires()
+  public function getDateCreated(): \DateTime
   {
-    return $this->expires;
+    return $this->dateCreated;
   }
 
   /**
-   * Set expires
-   *
-   * @param \DateTime $expires
-   *
+   * @param \DateTime $dateCreated
    * @return Link
    */
-  public function setExpires($expires)
+  public function setDateCreated(\DateTime $dateCreated): Link
   {
-    $this->expires = $expires;
+    $this->dateCreated = $dateCreated;
 
     return $this;
   }
 
   /**
-   * Get created
-   *
    * @return \DateTime
    */
-  public function getCreated()
+  public function getDateLastAccessed()
   {
-    return $this->created;
+    return $this->dateLastAccessed;
   }
 
   /**
-   * Set created
-   *
-   * @param \DateTime $created
-   *
+   * @param \DateTime $dateLastAccessed
    * @return Link
    */
-  public function setCreated($created)
+  public function setDateLastAccessed($dateLastAccessed): Link
   {
-    $this->created = $created;
+    $this->dateLastAccessed = $dateLastAccessed;
 
     return $this;
   }
 
   /**
-   * Get updated
-   *
    * @return \DateTime
    */
-  public function getUpdated()
+  public function getDateExpires()
   {
-    return $this->updated;
+    return $this->dateExpires;
   }
 
   /**
-   * Set updated
-   *
-   * @param \DateTime $updated
-   *
+   * @param \DateTime|null $dateExpires
    * @return Link
    */
-  public function setUpdated($updated)
+  public function setDateExpires($dateExpires = null): Link
   {
-    $this->updated = $updated;
+    $this->dateExpires = $dateExpires;
 
     return $this;
   }
 
   /**
-   * Get hits
-   *
-   * @return integer
+   * @return int
    */
-  public function getHits()
+  public function getHits(): int
   {
     return $this->hits;
   }
 
   /**
-   * Set hits
-   *
-   * @param integer $hits
-   *
+   * @param int $hits
    * @return Link
    */
-  public function setHits($hits)
+  public function setHits(int $hits): Link
   {
     $this->hits = $hits;
+
+    return $this;
+  }
+
+  /**
+   * @return bool
+   */
+  public function isDeleted(): bool
+  {
+    return $this->deleted;
+  }
+
+  /**
+   * @param bool $deleted
+   * @return Link
+   */
+  public function setDeleted(bool $deleted): Link
+  {
+    $this->deleted = $deleted;
 
     return $this;
   }
