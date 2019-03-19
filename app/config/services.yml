@@ -50,3 +50,12 @@ services:
     logger:
         alias: 'monolog.logger'
         public: true
+
+    # Endpoints
+    shortener_endpoint:
+        class: AppBundle\Endpoint\ShortenEndpoint
+        arguments:
+            - '@logger'
+            - '@doctrine'
+            - '@shortener'
+        public: true

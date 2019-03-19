@@ -3,13 +3,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\NowDateHelper;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DefaultController extends Controller {
+class DefaultController extends GeneralController {
   /**
    * @Route("/{shortcut}/", name="/{shortcut}/ (alias)",
    * requirements={"shortcut":
