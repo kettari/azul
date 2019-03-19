@@ -23,4 +23,21 @@ class LinkRepository extends EntityRepository {
   public function findOneByShortcut(string $shortcut) {
     return $this->findOneBy(['shortcut' => $shortcut, 'deleted' => FALSE]);
   }
+
+  /**
+   * @param \DateTime $since
+   * @return array
+   */
+  public function findLinksCreatedSince(\DateTime $since) {
+    // Build query
+    $qb = $this->getEntityManager()
+      ->createQueryBuilder()
+      ->select('links')
+      ->from('AppBundle:Link', 'links');
+    $qb->where('links.dateCreated >= :since')
+      ->setParameter('since', $since);
+
+    return $qb->getQuery()
+      ->getResult();
+  }
 }

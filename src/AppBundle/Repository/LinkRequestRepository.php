@@ -15,12 +15,19 @@ use Doctrine\ORM\EntityRepository;
  */
 class LinkRequestRepository extends EntityRepository {
   /**
-   * Finds shortened link by shortcut.
-   *
-   * @param string $shortcut
-   * @return null|object
+   * @param \DateTime $since
+   * @return array
    */
-  /*public function findOneByShortcut(string $shortcut) {
-    return $this->findOneBy(['shortcut' => $shortcut, 'deleted' => FALSE]);
-  }*/
+  public function findRequestsSince(\DateTime $since) {
+    // Build query
+    $qb = $this->getEntityManager()
+      ->createQueryBuilder()
+      ->select('requests')
+      ->from('AppBundle:LinkRequest', 'requests');
+    $qb->where('requests.dateCreated >= :since')
+      ->setParameter('since', $since);
+
+    return $qb->getQuery()
+      ->getResult();
+  }
 }

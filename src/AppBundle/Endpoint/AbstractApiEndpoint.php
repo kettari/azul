@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace AppBundle\Endpoint;
 
 
-use AppBundle\Entity\Owner;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

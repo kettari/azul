@@ -52,10 +52,24 @@ services:
         public: true
 
     # Endpoints
-    shortener_endpoint:
-        class: AppBundle\Endpoint\ShortenEndpoint
+    shortcut_create_endpoint:
+        class: AppBundle\Endpoint\ShortcutCreateEndpoint
         arguments:
             - '@logger'
             - '@doctrine'
             - '@shortener'
+        public: true
+
+    shortcut_resolve_endpoint:
+        class: AppBundle\Endpoint\ShortcutResolveEndpoint
+        arguments:
+            - '@logger'
+            - '@doctrine'
+        public: true
+
+    stats_endpoint:
+        class: AppBundle\Endpoint\StatsEndpoint
+        arguments:
+            - '@logger'
+            - '@doctrine'
         public: true

@@ -10,7 +10,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class ShortenEndpoint extends AbstractSecuredApiEndpoint implements PostMethodInterface {
+class ShortcutCreateEndpoint extends AbstractSecuredApiEndpoint implements PostMethodInterface {
 
   /**
    * @var UrlShortener
@@ -23,7 +23,7 @@ class ShortenEndpoint extends AbstractSecuredApiEndpoint implements PostMethodIn
   private $inputData;
 
   /**
-   * ShortenEndpoint constructor.
+   * ShortcutEndpoint constructor.
    *
    * @param LoggerInterface $logger
    * @param RegistryInterface $doctrine

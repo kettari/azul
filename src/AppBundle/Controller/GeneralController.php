@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 
 
 use AppBundle\Endpoint\AbstractEndpoint;
+use AppBundle\Endpoint\GetMethodInterface;
 use AppBundle\Endpoint\PostMethodInterface;
 use AppBundle\Endpoint\SecuredInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -23,6 +24,10 @@ class GeneralController extends Controller {
   protected function executeEndpoint(Request $request, AbstractEndpoint $endpoint) {
     // Check HTTP method
     $methodAllowed = FALSE;
+    if ('GET' == $request->getMethod() &&
+      $endpoint instanceof GetMethodInterface) {
+      $methodAllowed = TRUE;
+    }
     if ('POST' == $request->getMethod() &&
       $endpoint instanceof PostMethodInterface) {
       $methodAllowed = TRUE;
