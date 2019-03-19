@@ -1,18 +1,19 @@
 <?php
+declare(strict_types=1);
 
 namespace AppBundle\Entity;
 
+use AppBundle\NowDateHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 
 
 /**
- * @ORM\Entity
- * @ORM\Table(name="link",indexes={@Index(name="shortcut_idx",columns={"shortcut"})},
- *   options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"})
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
+ * @ORM\Table(name="link",indexes={@Index(name="creation_idx",columns={"date_created"})})
  */
-class Link
-{
+class Link {
   /**
    * @ORM\Column(type="integer")
    * @ORM\Id
@@ -21,243 +22,262 @@ class Link
   private $id;
 
   /**
-   * @ORM\Column(type="string",length=100,unique=true)
-   */
-  private $shortcut;
-
-  /**
+   * @var string
    * @ORM\Column(type="string",length=4096)
    */
-  private $url;
+  private $url = '';
 
   /**
-   * @ORM\Column(type="string",length=50)
+   * @var string
+   * @ORM\Column(type="string",length=20)
    */
-  private $status;
+  private $type = '';
 
   /**
-   * @ORM\Column(type="string",length=50)
+   * @var string
+   * @ORM\Column(type="string",length=100,unique=true,options={"collation":"utf8_bin"})
    */
-  private $type;
+  private $shortcut = '';
 
   /**
+   * @var \DateTime
+   * @ORM\Column(type="datetime")
+   */
+  private $dateCreated;
+
+  /**
+   * @var \DateTime
    * @ORM\Column(type="datetime",nullable=true)
    */
-  private $expires;
+  private $dateLastAccessed;
 
   /**
-   * @ORM\Column(type="datetime")
+   * @var \DateTime
+   * @ORM\Column(type="datetime",nullable=true)
    */
-  private $created;
+  private $dateExpires;
 
   /**
-   * @ORM\Column(type="datetime")
-   */
-  private $updated;
-
-  /**
+   * @var int
    * @ORM\Column(type="integer")
    */
   private $hits = 0;
 
   /**
-   * Get id
+   * @var bool
+   * @ORM\Column(type="boolean")
+   */
+  private $deleted = FALSE;
+
+  /**
+   * ~~INVERSE SIDE~~
    *
+   * @ORM\OneToMany(targetEntity="AppBundle\Entity\LinkRequest", mappedBy="link")
+   */
+  private $linkRequests;
+
+  /**
+   * ~~OWNING SIDE~~
+   *
+   * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Owner", inversedBy="links")
+   * @ORM\JoinColumn(nullable=false)
+   */
+  private $owner;
+
+  /**
+   * Link constructor.
+   */
+  public function __construct() {
+    $this->dateCreated = NowDateHelper::getNow();
+    $this->linkRequests = new ArrayCollection();
+  }
+
+  /**
    * @return integer
    */
-  public function getId()
-  {
+  public function getId() {
     return $this->id;
   }
 
   /**
-   * Get shortcut
-   *
    * @return string
    */
-  public function getShortcut()
-  {
-    return $this->shortcut;
-  }
-
-  /**
-   * Set shortcut
-   *
-   * @param string $shortcut
-   *
-   * @return Link
-   */
-  public function setShortcut($shortcut)
-  {
-    $this->shortcut = $shortcut;
-
-    return $this;
-  }
-
-  /**
-   * Get url
-   *
-   * @return string
-   */
-  public function getUrl()
-  {
+  public function getUrl(): string {
     return $this->url;
   }
 
   /**
-   * Set url
-   *
    * @param string $url
-   *
    * @return Link
    */
-  public function setUrl($url)
-  {
+  public function setUrl(string $url): Link {
     $this->url = $url;
 
     return $this;
   }
 
   /**
-   * Get status
-   *
    * @return string
    */
-  public function getStatus()
-  {
-    return $this->status;
-  }
-
-  /**
-   * Set status
-   *
-   * @param string $status
-   *
-   * @return Link
-   */
-  public function setStatus($status)
-  {
-    $this->status = $status;
-
-    return $this;
-  }
-
-  /**
-   * Get type
-   *
-   * @return string
-   */
-  public function getType()
-  {
+  public function getType(): string {
     return $this->type;
   }
 
   /**
-   * Set type
-   *
    * @param string $type
-   *
    * @return Link
    */
-  public function setType($type)
-  {
+  public function setType(string $type): Link {
     $this->type = $type;
 
     return $this;
   }
 
   /**
-   * Get expires
-   *
-   * @return \DateTime
+   * @return string
    */
-  public function getExpires()
-  {
-    return $this->expires;
+  public function getShortcut(): string {
+    return $this->shortcut;
   }
 
   /**
-   * Set expires
-   *
-   * @param \DateTime $expires
-   *
+   * @param string $shortcut
    * @return Link
    */
-  public function setExpires($expires)
-  {
-    $this->expires = $expires;
+  public function setShortcut(string $shortcut): Link {
+    $this->shortcut = $shortcut;
 
     return $this;
   }
 
   /**
-   * Get created
-   *
    * @return \DateTime
    */
-  public function getCreated()
-  {
-    return $this->created;
+  public function getDateCreated(): \DateTime {
+    return $this->dateCreated;
   }
 
   /**
-   * Set created
-   *
-   * @param \DateTime $created
-   *
+   * @param \DateTime $dateCreated
    * @return Link
    */
-  public function setCreated($created)
-  {
-    $this->created = $created;
+  public function setDateCreated(\DateTime $dateCreated): Link {
+    $this->dateCreated = $dateCreated;
 
     return $this;
   }
 
   /**
-   * Get updated
-   *
    * @return \DateTime
    */
-  public function getUpdated()
-  {
-    return $this->updated;
+  public function getDateLastAccessed() {
+    return $this->dateLastAccessed;
   }
 
   /**
-   * Set updated
-   *
-   * @param \DateTime $updated
-   *
+   * @param \DateTime $dateLastAccessed
    * @return Link
    */
-  public function setUpdated($updated)
-  {
-    $this->updated = $updated;
+  public function setDateLastAccessed($dateLastAccessed): Link {
+    $this->dateLastAccessed = $dateLastAccessed;
 
     return $this;
   }
 
   /**
-   * Get hits
-   *
-   * @return integer
+   * @return \DateTime
    */
-  public function getHits()
-  {
+  public function getDateExpires() {
+    return $this->dateExpires;
+  }
+
+  /**
+   * @param \DateTime|null $dateExpires
+   * @return Link
+   */
+  public function setDateExpires($dateExpires = NULL): Link {
+    $this->dateExpires = $dateExpires;
+
+    return $this;
+  }
+
+  /**
+   * @return int
+   */
+  public function getHits(): int {
     return $this->hits;
   }
 
   /**
-   * Set hits
-   *
-   * @param integer $hits
-   *
+   * @param int $hits
    * @return Link
    */
-  public function setHits($hits)
-  {
+  public function setHits(int $hits): Link {
     $this->hits = $hits;
+
+    return $this;
+  }
+
+  /**
+   * @return bool
+   */
+  public function isDeleted(): bool {
+    return $this->deleted;
+  }
+
+  /**
+   * @param bool $deleted
+   * @return Link
+   */
+  public function setDeleted(bool $deleted): Link {
+    $this->deleted = $deleted;
+
+    return $this;
+  }
+
+  /**
+   * Add link request
+   *
+   * @param \AppBundle\Entity\LinkRequest $linkRequest
+   * @return Link
+   */
+  public function addLinkRequest(LinkRequest $linkRequest) {
+    $this->linkRequests[] = $linkRequest;
+
+    return $this;
+  }
+
+  /**
+   * Remove link request
+   *
+   * @param \AppBundle\Entity\LinkRequest $linkRequest
+   */
+  public function removeLinkRequest(LinkRequest $linkRequest) {
+    $this->linkRequests->removeElement($linkRequest);
+  }
+
+  /**
+   * Get link requests
+   *
+   * @return \Doctrine\Common\Collections\Collection
+   */
+  public function getLinkRequests() {
+    return $this->linkRequests;
+  }
+
+  /**
+   * @return \AppBundle\Entity\Owner
+   */
+  public function getOwner(): Owner {
+    return $this->owner;
+  }
+
+  /**
+   * @param \AppBundle\Entity\Owner $owner
+   * @return \AppBundle\Entity\Link
+   */
+  public function setOwner(Owner $owner) {
+    $this->owner = $owner;
 
     return $this;
   }
