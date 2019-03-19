@@ -38,8 +38,12 @@ class ApiController extends GeneralController {
   public function shortcutResolveAction(Request $request) {
     $logger = $this->container->get('logger');
     try {
-      return $this->executeEndpoint($request,
-        $this->container->get('shortcut_resolve_endpoint'));
+      if ('/' == $request->getPathInfo()) {
+        return $this->render('default/index.html.twig');
+      } else {
+        return $this->executeEndpoint($request,
+          $this->container->get('shortcut_resolve_endpoint'));
+      }
     } catch (NotFoundHttpException $e) {
       return $this->render('default/error_404.html.twig', [],
         new Response($e->getMessage(), 404));

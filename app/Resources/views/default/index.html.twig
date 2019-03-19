@@ -1,9 +1,22 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Сервис коротких ссылок kau.la{% endblock %}
+
 {% block body %}
-    Hello index.
-{% endblock %}
+    <div class="container">
+        <div class="content">
+            <h1>Сервис коротких ссылок</h1>
+            <p>Этот сервис сделан для Школы Каула-йоги, чтобы сокращать длинные ссылки в красивый вариант
+                https://kau.la/something</p>
 
-{% block stylesheets %}
+            <h2>Как я сюда попал?</h2>
+            <p>Возможно, вы ошиблись при вводе ссылки в адресную строку броузера или при копировании.
+                Пожалуйста, проверьте корректность ссылки.</p>
+            <p>Если ничего не помогло, звоните нам в Школу по телефону +7 499 638-28-88 и мы постараемся вам помочь.</p>
+            <p>Можно так же попробовать поискать информацию на сайте <a
+                        href="https://kaula.ru?utm_source=shortener&utm_medium=page&utm_campaign=error_404">kaula.ru</a>.
+            </p>
 
+        </div>
+    </div>
 {% endblock %}
