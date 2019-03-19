@@ -61,8 +61,10 @@ abstract class AbstractApiEndpoint extends AbstractEndpoint {
   function afterFailedProcess() {
     /** @var \Doctrine\ORM\EntityManager $em */
     $em = $this->doctrine->getManager();
-    $em->getConnection()
-      ->rollBack();
+    if ($em->getConnection()->isTransactionActive()) {
+      $em->getConnection()
+        ->rollBack();
+    }
   }
 
 
