@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 class ApiController extends GeneralController {
   /**
-   * @Route("/api/v1/shorten", name="/shorten")
+   * @Route("/api/v1/shortcut", name="/shortcut")
    * @param \Symfony\Component\HttpFoundation\Request $request
    * @return \Symfony\Component\HttpFoundation\Response
    * @throws \Exception
