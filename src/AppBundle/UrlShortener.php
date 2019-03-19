@@ -5,6 +5,7 @@ namespace AppBundle;
 
 
 use AppBundle\Entity\Link;
+use AppBundle\Entity\Owner;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -39,12 +40,13 @@ class UrlShortener {
    * Creates alias for the url.
    *
    * @param string $url
+   * @param Owner $owner
    * @param null|\DateTime $expires
    * @param null|string $shortcut
    * @return \AppBundle\Entity\Link
    * @throws \Exception
    */
-  public function shorten($url, $expires = NULL, $shortcut = NULL) {
+  public function shorten($url, $owner, $expires = NULL, $shortcut = NULL) {
     if (!is_null($shortcut) &&
       !is_null($this->doctrine->getRepository('AppBundle:Link')
         ->findOneByShortcut($shortcut))) {
@@ -54,6 +56,7 @@ class UrlShortener {
 
     $link = new Link();
     $link->setUrl($url)
+      ->setOwner($owner)
       ->setShortcut(is_null($shortcut) ? $this->generateUniqueShortcut() : $shortcut)
       ->setDateExpires($expires)
       ->setType(is_null($expires) ? 'permanent' : 'temporary');

@@ -6,6 +6,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Endpoint\AbstractEndpoint;
 use AppBundle\Endpoint\PostMethodInterface;
+use AppBundle\Endpoint\SecuredInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
@@ -32,10 +33,17 @@ class GeneralController extends Controller {
           $request->getMethod()));
     }
 
+    // Inject dependencies
+    $endpoint->setRequest($request);
+
+    // Check security
+    if ($endpoint instanceof SecuredInterface) {
+      $endpoint->authenticate();
+    }
+
     // Validate input data and handle request
     try {
-      $result = $endpoint->setRequest($request)
-        ->beforeProcess()
+      $result = $endpoint->beforeProcess()
         ->validate()
         ->handle();
       $endpoint->afterSuccessfulProcess();

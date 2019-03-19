@@ -77,6 +77,14 @@ class Link {
   private $linkRequests;
 
   /**
+   * ~~OWNING SIDE~~
+   *
+   * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Owner", inversedBy="links")
+   * @ORM\JoinColumn(nullable=false)
+   */
+  private $owner;
+
+  /**
    * Link constructor.
    */
   public function __construct() {
@@ -244,7 +252,7 @@ class Link {
    *
    * @param \AppBundle\Entity\LinkRequest $linkRequest
    */
-  public function removeSubscription(LinkRequest $linkRequest) {
+  public function removeLinkRequest(LinkRequest $linkRequest) {
     $this->linkRequests->removeElement($linkRequest);
   }
 
@@ -255,5 +263,22 @@ class Link {
    */
   public function getLinkRequests() {
     return $this->linkRequests;
+  }
+
+  /**
+   * @return \AppBundle\Entity\Owner
+   */
+  public function getOwner(): Owner {
+    return $this->owner;
+  }
+
+  /**
+   * @param \AppBundle\Entity\Owner $owner
+   * @return \AppBundle\Entity\Link
+   */
+  public function setOwner(Owner $owner) {
+    $this->owner = $owner;
+
+    return $this;
   }
 }

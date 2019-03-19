@@ -4,13 +4,16 @@ declare(strict_types=1);
 namespace AppBundle\Endpoint;
 
 
+use AppBundle\Entity\Owner;
 use AppBundle\UrlShortener;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class ShortenEndpoint extends AbstractApiEndpoint implements PostMethodInterface {
+class ShortenEndpoint extends AbstractApiEndpoint implements PostMethodInterface, SecuredInterface {
 
   /**
    * @var UrlShortener
@@ -21,6 +24,11 @@ class ShortenEndpoint extends AbstractApiEndpoint implements PostMethodInterface
    * @var array
    */
   private $inputData;
+
+  /**
+   * @var \AppBundle\Entity\Owner
+   */
+  private $owner;
 
   /**
    * ShortenEndpoint constructor.
@@ -141,8 +149,8 @@ class ShortenEndpoint extends AbstractApiEndpoint implements PostMethodInterface
       $this->getLogger()
         ->info('Shortening item index {item_index}',
           array_merge(['item_index' => $key], $urlItem));
-      $link = $this->shortener->shorten($urlItem['url'], $expirationDate,
-        $shortcut);
+      $link = $this->shortener->shorten($urlItem['url'], $this->getOwner(),
+        $expirationDate, $shortcut);
       $shortenedItem = [
         'url'            => $urlItem['url'],
         'type'           => $link->getType(),
@@ -177,5 +185,31 @@ class ShortenEndpoint extends AbstractApiEndpoint implements PostMethodInterface
         $stringDate);
     }
   }
+
+  /**
+   * @return \AppBundle\Entity\Owner
+   */
+  public function getOwner(): Owner {
+    return $this->owner;
+  }
+
+  /**
+   * Authenticates request
+   */
+  public function authenticate() {
+    if ($apiKey = $this->getRequest()
+      ->get('apiKey')) {
+      /** @var \Doctrine\ORM\EntityManager $em */
+      $em = $this->getDoctrine()
+        ->getManager();
+      if (is_null($this->owner = $em->getRepository('AppBundle:Owner')
+        ->findOneByApiKey($apiKey))) {
+        throw new AccessDeniedHttpException('API key provided but it is wrong');
+      }
+    } else {
+      throw new UnauthorizedHttpException('', 'API key not provided');
+    }
+  }
+
 
 }

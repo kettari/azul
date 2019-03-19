@@ -5,8 +5,10 @@ namespace AppBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
@@ -33,6 +35,12 @@ class ApiController extends GeneralController {
         Response::HTTP_BAD_REQUEST, $e->getMessage());
     } catch (ConflictHttpException $e) {
       return $this->apiError(Response::HTTP_CONFLICT, Response::HTTP_CONFLICT,
+        $e->getMessage());
+    } catch (UnauthorizedHttpException $e) {
+      return $this->apiError(Response::HTTP_UNAUTHORIZED,
+        Response::HTTP_UNAUTHORIZED, $e->getMessage());
+    } catch (AccessDeniedHttpException $e) {
+      return $this->apiError(Response::HTTP_FORBIDDEN, Response::HTTP_FORBIDDEN,
         $e->getMessage());
     } catch (\Exception $e) {
       if ('dev' == $this->getParameter("kernel.environment")) {
