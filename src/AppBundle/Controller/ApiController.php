@@ -2,27 +2,35 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\NowDateHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends Controller {
 
+  const ERROR_METHOD_NOT_ALLOWED = 405;
+
   /**
    * @Route("/api/v1/shorten", name="/shorten")
    * @param \Symfony\Component\HttpFoundation\Request $request
-   * @param string $shortcut
    * @return \Symfony\Component\HttpFoundation\Response
    * @throws \Exception
    */
-  public function shortenAction(Request $request, $shortcut) {
+  public function shortenAction(Request $request) {
     $logger = $this->container->get('logger');
     $doctrine = $this->container->get('doctrine');
 
     try {
+
+      // Check HTTP method
+      if ('POST' != $request->getMethod()) {
+        return $this->apiError(Response::HTTP_METHOD_NOT_ALLOWED,
+          self::ERROR_METHOD_NOT_ALLOWED,
+          sprintf('This API method doesn\'t support %s HTTP method',
+            $request->getMethod()));
+      }
 
       /** @var \AppBundle\Entity\Link $link */
       $link = $doctrine->getRepository('AppBundle:Link')
@@ -38,7 +46,6 @@ class ApiController extends Controller {
       }
 
 
-
     } catch (\Exception $e) {
       if ('dev' == $this->getParameter("kernel.environment")) {
         throw $e;
@@ -48,5 +55,18 @@ class ApiController extends Controller {
         return new Response('Internal Server Error :(', 500);
       }
     }
+  }
+
+  /**
+   * @param int $httpCode
+   * @param int $errorCode
+   * @param string $errorDescription
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
+  protected function apiError($httpCode, $errorCode, $errorDescription = '') {
+    return new JsonResponse([
+      'errorCode'        => $errorCode,
+      'errorDescription' => $errorDescription,
+    ], $httpCode);
   }
 }

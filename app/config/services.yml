@@ -43,5 +43,10 @@ services:
             - '@doctrine'
 
     shortener:
-      alias: kaula_shortener.worker
-      public: true
+        alias: kaula_shortener.worker
+        public: true
+
+    # Make logger public again
+    logger:
+        alias: 'monolog.logger'
+        public: true

@@ -42,10 +42,11 @@ class DefaultController extends Controller {
       $link = $doctrine->getRepository('AppBundle:Link')
         ->findOneByShortcut($shortcut);
       if (is_null($link)) {
-        $logger->info('Not found shortcut "{shortcut}" for the client {client_ip}', [
-          'shortcut'  => $shortcut,
-          'client_ip' => $request->getClientIp(),
-        ]);
+        $logger->info('Not found shortcut "{shortcut}" for the client {client_ip}',
+          [
+            'shortcut'  => $shortcut,
+            'client_ip' => $request->getClientIp(),
+          ]);
 
         return $this->render('default/error_404.html.twig', [],
           new Response('Shortcut is not found', 404));
@@ -54,11 +55,13 @@ class DefaultController extends Controller {
       // Check if URL expired
       if (!is_null($link->getDateExpires()) &&
         ($link->getDateExpires() < NowDateHelper::getNow())) {
-        $logger->info('Expired "{shortcut}" -> "{url}" for client {client_ip}',
+        $logger->info('Shortcut "{shortcut}" -> "{url}" expired on "{date_expires}" for client {client_ip}',
           [
-            'shortcut'  => $shortcut,
-            'url'       => $link->getUrl(),
-            'client_ip' => $request->getClientIp(),
+            'shortcut'     => $shortcut,
+            'url'          => $link->getUrl(),
+            'date_expires' => $link->getDateExpires()
+              ->format('Y-m-d\TH:i:s\Z'),
+            'client_ip'    => $request->getClientIp(),
           ]);
 
         return $this->render('default/error_410.html.twig', [],
