@@ -165,7 +165,7 @@ class ShortcutCreateEndpoint extends AbstractSecuredApiEndpoint implements PostM
       $result[] = $shortenedItem;
     }
 
-    return new JsonResponse($result);
+    return new JsonResponse($result, JsonResponse::HTTP_CREATED);
   }
 
   /**
